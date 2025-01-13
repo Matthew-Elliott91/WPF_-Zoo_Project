@@ -9,9 +9,12 @@
         ">
     <Grid>
         <Label Content="Zoo List" HorizontalAlignment="Left" Margin="39,27,0,0" VerticalAlignment="Top"/>
-        <ListBox Name="listZoos" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,70,565,254"/>
+        <ListBox Name="listZoos" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,70,565,254" SelectionChanged="listZoos_SelectionChanged"/>
+        <Label Content="Animals in Zoo" HorizontalAlignment="Left" Margin="205,27,0,0" VerticalAlignment="Top"/>
+        <ListBox x:Name="listAssociatedAnimals" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="175,70,400,254"/>
+        <ListBox x:Name="listAllAnimals" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="338,70,237,75" />
 
-        
+
 
     </Grid>
 </Window>

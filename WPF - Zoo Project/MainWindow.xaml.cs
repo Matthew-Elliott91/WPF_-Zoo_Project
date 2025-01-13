@@ -33,29 +33,111 @@ namespace WPF___Zoo_Project
 
             sqlConnection = new SqlConnection(connectionString);
 
-            ShowZoos();
+           ShowZoos();
+           ShowAllAnimals();
         }
 
         private void ShowZoos()
         {
-            string query = "SELECT * FROM Zoo";
-            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
+            try
+            {
+                string query = "SELECT * FROM Zoo";
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
 
-            using (sqlDataAdapter)
-            { 
-                DataTable zooTable = new DataTable();
-                sqlDataAdapter.Fill(zooTable);
+                using (sqlDataAdapter)
+                {
+                    DataTable zooTable = new DataTable();
+                    sqlDataAdapter.Fill(zooTable);
 
-                // What info should be shown in the listbox
-                listZoos.DisplayMemberPath = "Location";
-                //What value should be delivered when an item is selected
-                listZoos.SelectedValuePath = "Id";
-                //The reference to the data the listbox should populate
-                listZoos.ItemsSource = zooTable.DefaultView;
+                    // What info should be shown in the listbox
+                    listZoos.DisplayMemberPath = "Location";
+                    //What value should be delivered when an item is selected
+                    listZoos.SelectedValuePath = "Id";
+                    //The reference to the data the listbox should populate
+                    listZoos.ItemsSource = zooTable.DefaultView;
 
 
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
             }
         }
+        private void ShowAssociatedAnimals()
+        {
+            try
+            {
+                string query = "SELECT * FROM Animal a inner join ZooAnimal za on a.id = za.AnimalId where za.Zooid = @zooID;";
 
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+
+                using (sqlDataAdapter)
+                {
+                    sqlCommand.Parameters.AddWithValue("@zooID", listZoos.SelectedValue);
+
+                    DataTable associatedAnimalsTable = new DataTable();
+                    sqlDataAdapter.Fill(associatedAnimalsTable);
+
+                    // What info should be shown in the listbox
+                    listAssociatedAnimals.DisplayMemberPath = "Name";
+                    //What value should be delivered when an item is selected
+                    listAssociatedAnimals.SelectedValuePath = "Id";
+                    //The reference to the data the listbox should populate
+                    listAssociatedAnimals.ItemsSource = associatedAnimalsTable.DefaultView;
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+            
+        }
+
+        private void ShowAllAnimals()
+        {
+            try
+            {
+                string query = "Select * From Animal";
+
+                
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
+
+                using (sqlDataAdapter)
+                {
+                   
+
+                    DataTable showAllAnimalsTable = new DataTable();
+                    sqlDataAdapter.Fill(showAllAnimalsTable);
+
+                    // What info should be shown in the listbox
+                    listAllAnimals.DisplayMemberPath = "Name";
+                    //What value should be delivered when an item is selected
+                    listAllAnimals.SelectedValuePath = "Id";
+                    //The reference to the data the listbox should populate
+                    listAllAnimals.ItemsSource = showAllAnimalsTable.DefaultView;
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+
+        }
+
+        private void listZoos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ShowAssociatedAnimals();
+
+        }
+
+        
     }
 }
