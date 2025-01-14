@@ -44,6 +44,6 @@ The application includes basic error handling to display error messages in case 
 
 ## Requirements
 
-- .NET Framework 4.7.2
+- .NET Framework 
 - SQL Server with a database containing `Zoo`, `Animal`, and `ZooAnimal` tables.
 ```
