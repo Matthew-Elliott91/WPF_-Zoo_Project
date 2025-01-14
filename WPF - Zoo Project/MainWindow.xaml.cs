@@ -37,6 +37,7 @@ namespace WPF___Zoo_Project
 
             ShowZoos();
             ShowAllAnimals();
+            
         }
 
         private void ShowZoos()
@@ -141,7 +142,13 @@ namespace WPF___Zoo_Project
         private void listZoos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ShowAssociatedAnimals();
+            ShowSelectedZooInTextBox();
 
+        }
+
+        private void listAllAnimals_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ShowSelectedAnimalInTextBox();
         }
 
         // Delete Zoo Button
@@ -263,7 +270,7 @@ namespace WPF___Zoo_Project
             }
             
         }
-
+        // Delete Animal Button
         private void DeleteAnimal_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -284,15 +291,129 @@ namespace WPF___Zoo_Project
                 ShowAllAnimals();
             }
         }
-        // Clear InputBox when clicked
-        private void InputBox_GotFocus(object sender, RoutedEventArgs e)
+
+        // Show selected zoo in InputBox
+        private void ShowSelectedZooInTextBox()
         {
-            InputBox.Clear();
+            try
+            {
+                string query =
+                    "SELECT location from zoo where Id = @ZooId;";
+
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+
+                using (sqlDataAdapter)
+                {
+                    sqlCommand.Parameters.AddWithValue("@ZooID", listZoos.SelectedValue);
+
+                    DataTable zooDataTable = new DataTable();
+                    sqlDataAdapter.Fill(zooDataTable);
+
+
+                 InputBox.Text = zooDataTable.Rows[0]["Location"].ToString();
+
+
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.ToString());
+            }
         }
 
+        private void ShowSelectedAnimalInTextBox()
+        {
+            try
+            {
+                string query =
+                    "SELECT Name from Animal where Id = @AnimalId;";
+
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+
+                using (sqlDataAdapter)
+                {
+                    sqlCommand.Parameters.AddWithValue("@AnimalId", listAllAnimals.SelectedValue);
+
+                    DataTable animalDataTable = new DataTable();
+                    sqlDataAdapter.Fill(animalDataTable);
 
 
+                    InputBox.Text = animalDataTable.Rows[0]["Name"].ToString();
+
+
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show(e.ToString());
+            }
+        }
+        // Update Zoo Button
+        private void UpdateZoo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "Update Zoo Set Location = @InputBox where Id = @SelectedValue";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@InputBox", InputBox.Text);
+                sqlCommand.Parameters.AddWithValue("@SelectedValue", listZoos.SelectedValue);
+                sqlCommand.ExecuteScalar();
+                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowZoos();
+                MessageBox.Show("Zoo updated");
+
+            }
+            
+        }
+
+        // Update Animal Button
+        private void UpdateAnimal_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "Update Animal Set Name = @InputBox where  Id = @SelectedValue";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@InputBox", InputBox.Text);
+                sqlCommand.Parameters.AddWithValue("@SelectedValue", listAllAnimals.SelectedValue);
+                sqlCommand.ExecuteScalar();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowAllAnimals();
+                MessageBox.Show("Animal updated");
+
+            }
+
+
+
+        }
     }
 }
+                
+          
 
 
