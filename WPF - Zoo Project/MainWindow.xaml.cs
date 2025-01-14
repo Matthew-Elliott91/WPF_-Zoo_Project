@@ -23,18 +23,20 @@ namespace WPF___Zoo_Project
     public partial class MainWindow : Window
     {
         private SqlConnection sqlConnection;
+
         public MainWindow()
         {
             InitializeComponent();
 
             string connectionString = ConfigurationManager
-                .ConnectionStrings["WPF___Zoo_Project.Properties.Settings.PanjutorialsDBConnectionString"].ConnectionString;
-               
+                .ConnectionStrings["WPF___Zoo_Project.Properties.Settings.PanjutorialsDBConnectionString"]
+                .ConnectionString;
+
 
             sqlConnection = new SqlConnection(connectionString);
 
-           ShowZoos();
-           ShowAllAnimals();
+            ShowZoos();
+            ShowAllAnimals();
         }
 
         private void ShowZoos()
@@ -64,11 +66,14 @@ namespace WPF___Zoo_Project
                 MessageBox.Show(e.ToString());
             }
         }
+
+        // Showing Animals in selected zoo
         private void ShowAssociatedAnimals()
         {
             try
             {
-                string query = "SELECT * FROM Animal a inner join ZooAnimal za on a.id = za.AnimalId where za.Zooid = @zooID;";
+                string query =
+                    "SELECT * FROM Animal a inner join ZooAnimal za on a.id = za.AnimalId where za.Zooid = @zooID;";
 
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
 
@@ -93,24 +98,25 @@ namespace WPF___Zoo_Project
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.ToString());
+                //MessageBox.Show(e.ToString());
             }
-            
+
         }
 
+        //Showing all animals in the database
         private void ShowAllAnimals()
         {
             try
             {
                 string query = "Select * From Animal";
 
-                
+
 
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
 
                 using (sqlDataAdapter)
                 {
-                   
+
 
                     DataTable showAllAnimalsTable = new DataTable();
                     sqlDataAdapter.Fill(showAllAnimalsTable);
@@ -138,6 +144,155 @@ namespace WPF___Zoo_Project
 
         }
 
-        
+        // Delete Zoo Button
+        private void DeleteZoo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "DELETE FROM Zoo WHERE Id = @ZooID";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@ZooID", listZoos.SelectedValue);
+                sqlCommand.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowZoos();
+            }
+        }
+
+        // Add Zoo Button
+        private void AddZoo_Click(object sender, RoutedEventArgs e)
+        {
+
+            try
+            {
+                string query = "INSERT INTO Zoo VALUES (@Location)";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@Location", InputBox.Text);
+                sqlCommand.ExecuteScalar();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowZoos();
+            }
+
+
+        }
+
+        // Add animal to zoo button
+        private void AddAnimalToZoo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "Insert into ZooAnimal (ZooID, AnimalId) Values (@SelectedZoo, @SelectedAnimal);";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@SelectedZoo", listZoos.SelectedValue);
+                sqlCommand.Parameters.AddWithValue("@SelectedAnimal", listAllAnimals.SelectedValue);
+                sqlCommand.ExecuteScalar();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowAssociatedAnimals();
+            }
+
+
+        }
+        // Remove Animal Button
+        private void RemoveAnimal_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "DELETE FROM ZooAnimal WHERE AnimalId = @AnimalId AND ZooId = @ZooId";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@AnimalId", listAssociatedAnimals.SelectedValue);
+                sqlCommand.Parameters.AddWithValue("@ZooId", listZoos.SelectedValue);
+                sqlCommand.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowAssociatedAnimals();
+            }
+        }
+
+        // Add Animal Button
+        private void AddAnimal_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "Insert into Animal (Name) values (@input);";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@input", InputBox.Text);
+                sqlCommand.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowAllAnimals();
+                InputBox.Clear();
+            }
+            
+        }
+
+        private void DeleteAnimal_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string query = "DELETE FROM Animal WHERE Id = @AnimalId";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                sqlConnection.Open();
+                sqlCommand.Parameters.AddWithValue("@AnimalId", listAllAnimals.SelectedValue);
+                sqlCommand.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                sqlConnection.Close();
+                ShowAllAnimals();
+            }
+        }
+        // Clear InputBox when clicked
+        private void InputBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            InputBox.Clear();
+        }
+
+
+
     }
 }
+
+
